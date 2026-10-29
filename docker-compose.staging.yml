@@ -1,0 +1,36 @@
+name: ${STACK_NAME:-staging}
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 512m
+
+  app:
+    image: ${IMAGE}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      POSTGRES_URL: postgres://postgres:demo@db:5432/demo
+      AUTH_SECRET: ${AUTH_SECRET:-staging-secret-change-me}
+      BASE_URL: ${BASE_URL:-http://localhost:4100}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-***}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_dummy}
+    ports:
+      - "${APP_PORT:-4100}:3000"
+    mem_limit: 768m
+
+volumes:
+  pgdata:
