@@ -1,0 +1,38 @@
+{
+  "output": "video/out/agentic-cicd-teaser.mp4",
+  "scenes": [
+    {
+      "kind": "title",
+      "main": "Agentic CI/CD",
+      "sub": "The test is an agent, not a script",
+      "vo": "Most AI testing demos stop at: the agent clicked the button. This one stops at the database."
+    },
+    {
+      "kind": "clip",
+      "clip": "video/raw/agent-run.mp4",
+      "start": 0,
+      "vo": "An LLM drives a real browser. One action per turn, no selectors, no page objects. It signs up and invites a teammate."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/money-scripted-fail.txt",
+      "vo": "I renamed the button from sign up to log in. The scripted test broke. That is the failure every team knows."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/money-agent-pass.txt",
+      "vo": "The agent passed. Same commit, same renamed button. It reads the page instead of memorising it."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/agent.txt",
+      "vo": "But I do not trust a model to grade itself. Postgres decides: if the invitation row exists, the stage is green."
+    },
+    {
+      "kind": "title",
+      "main": "Six stages, three cents",
+      "sub": "github.com/oussama-boukhachem/agentic-cicd-demo",
+      "vo": "Lint, build, agentic test, image, deploy, smoke. On every push. Full walkthrough in the project."
+    }
+  ]
+}

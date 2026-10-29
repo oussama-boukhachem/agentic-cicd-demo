@@ -135,7 +135,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install SSH key
         env:
-          VPS_B_HOST: ${{ vars.VPS_B_HOST }}
+          VPS_B_HOST: ${{ secrets.VPS_B_HOST }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "${{ secrets.VPS_B_SSH_KEY }}" > ~/.ssh/id_deploy
@@ -144,14 +144,14 @@ jobs:
 
       - name: Sync compose file
         env:
-          VPS_B_HOST: ${{ vars.VPS_B_HOST }}
+          VPS_B_HOST: ${{ secrets.VPS_B_HOST }}
         run: |
           ssh -i ~/.ssh/id_deploy root@"$VPS_B_HOST" "mkdir -p $STACK_DIR"
           scp -i ~/.ssh/id_deploy docker-compose.staging.yml root@"$VPS_B_HOST":$STACK_DIR/docker-compose.yml
 
       - name: Pull & up
         env:
-          VPS_B_HOST: ${{ vars.VPS_B_HOST }}
+          VPS_B_HOST: ${{ secrets.VPS_B_HOST }}
           TAG: ${{ needs.docker.outputs.tag }}
         run: |
           set -euo pipefail
@@ -177,7 +177,7 @@ jobs:
     steps:
       - name: Health endpoint
         env:
-          VPS_B_HOST: ${{ vars.VPS_B_HOST }}
+          VPS_B_HOST: ${{ secrets.VPS_B_HOST }}
         run: |
           for i in $(seq 1 20); do
             if curl -fsS "http://$VPS_B_HOST:${APP_PORT}/api/health"; then echo; exit 0; fi

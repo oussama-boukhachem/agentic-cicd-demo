@@ -10,7 +10,8 @@ rmSync(TMP, { recursive: true, force: true });
 mkdirSync(TMP, { recursive: true });
 mkdirSync(join(ROOT, 'video/out'), { recursive: true });
 
-const script = JSON.parse(readFileSync(join(ROOT, 'video/script.json'), 'utf8'));
+const scriptPath = process.env.SCRIPT || join(ROOT, 'video/script.json');
+const script = JSON.parse(readFileSync(scriptPath, 'utf8'));
 const TTS = process.env.TTS_BIN || (process.env.HOME + '/.local/bin/openclaw-piper');
 const PAD = 1.0;
 

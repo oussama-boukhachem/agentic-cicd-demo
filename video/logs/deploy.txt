@@ -8,5 +8,5 @@ Deploy to vps-b
   staging-db-1    Up (healthy)
 
 Smoke test
-  $ curl http://88.99.191.67:4100/api/health
+  $ curl $STAGING_URL/api/health
   {"status":"ok","db":"up"}
