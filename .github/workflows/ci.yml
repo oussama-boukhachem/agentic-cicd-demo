@@ -55,6 +55,8 @@ jobs:
     name: Agentic E2E (LLM drives the UI)
     needs: build
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-${{ github.run_id }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
