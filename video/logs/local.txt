@@ -1,0 +1,9 @@
+$ LLM_MODEL=gemma4:31b-cloud node scripts/agent-journey.mjs
+
+step 1: goto  /sign-up   -> ok
+step 2: fill  email      -> ok
+step 3: fill  password   -> ok
+step 4: click (submit)   -> ok
+DB ORACLE: PASS
+
+cost: 0.00  (local model)

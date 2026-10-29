@@ -1,0 +1,10 @@
+ELEMENTS (turn 3)
+ 0  input  email        "Enter your email"
+ 1  input  password     "Enter your password"
+ 2  button "Sign up"
+ 3  link   "Sign in to existing account"
+
+MODEL DECISION
+  -> fill { index: 0, value: "agent@example.com" }
+
+EXECUTED BY PLAYWRIGHT  ok

@@ -1,0 +1,12 @@
+$ docker build -t ghcr.io/.../agentic-cicd-demo:505775f .
+Successfully tagged agentic-cicd-demo
+
+Deploy to vps-b
+  + docker compose pull
+  + docker compose up -d --remove-orphans
+  staging-app-1   Up
+  staging-db-1    Up (healthy)
+
+Smoke test
+  $ curl http://88.99.191.67:4100/api/health
+  {"status":"ok","db":"up"}

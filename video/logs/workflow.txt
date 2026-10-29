@@ -1,0 +1,13 @@
+$ cat .github/workflows/ci.yml
+
+jobs:
+  quality:      lint + typecheck
+  build:        next build
+  agentic-e2e:  LLM drives the UI
+    steps:
+      - docker compose up -d
+      - npx playwright install chromium
+      - node scripts/agent-journey.mjs
+  docker:       build + push to GHCR
+  deploy:       SSH to vps-b
+  smoke:        curl /api/health

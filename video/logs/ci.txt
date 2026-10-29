@@ -1,0 +1,14 @@
+$ gh run view 40879529115
+
+Lint & typecheck                 ✓ success
+Build                            ✓ success
+Agentic E2E (LLM drives the UI)  ✓ success
+   step 4: click "Sign up"        -> ok
+   step 5: fill teammate@acme.dev -> ok
+   DB ORACLE: PASS
+Build & push image               ✓ success
+Deploy to vps-b                  ✓ success
+Smoke test                       ✓ success
+
+$ curl http://88.99.191.67:4100/api/health
+{"status":"ok","db":"up"}

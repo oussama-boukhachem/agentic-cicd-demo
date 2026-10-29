@@ -1,0 +1,13 @@
+$ node scripts/agent-journey.mjs
+
+step 1: goto  /sign-up              -> ok
+step 2: fill  email                 -> ok
+step 3: fill  password              -> ok
+step 4: click  ("Log in")           -> ok
+step 5: fill  teammate@acme.dev     -> ok
+step 6: click  ("Invite Member")    -> ok
+step 7: done
+
+agent finished: true
+db rows: [{"email":"teammate+...","status":"pending"}]
+DB ORACLE: PASS

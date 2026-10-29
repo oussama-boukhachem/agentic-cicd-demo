@@ -152,8 +152,13 @@ function locatorFor(page, el) {
   return page.locator(`[data-agent-idx="${el.index}"]`).first();
 }
 
+const RECORD_DIR = process.env.RECORD_DIR || '';
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+const context = await browser.newContext({
+  viewport: { width: 1440, height: 900 },
+  ...(RECORD_DIR ? { recordVideo: { dir: RECORD_DIR, size: { width: 1440, height: 900 } } } : {})
+});
+const page = await context.newPage();
 const log = [];
 
 const messages = [
@@ -222,16 +227,27 @@ try {
   }
 } finally {
   await page.screenshot({ path: 'agent-final.png', fullPage: false }).catch(() => {});
-  await browser.close();
+  if (RECORD_DIR) {
+    const v = page.video();
+    await context.close().catch(() => {});
+    if (v) console.log('recording:', await v.path());
+  } else {
+    await browser.close().catch(() => {});
+  }
 }
 
 console.log(log.join('\n'));
 console.log('agent finished:', finished, '-', summary);
 console.log('email used:', EMAIL);
 
+const PG_URL = process.env.POSTGRES_URL || (process.env.PGPASSWORD
+  ? 'postgres://postgres:' + encodeURIComponent(process.env.PGPASSWORD) +
+    '@' + (process.env.PGHOST || '127.0.0.1') + ':' + (process.env.PGPORT || '5432') + '/demo'
+  : '');
+
 let dbOk = false;
-if (process.env.POSTGRES_URL) {
-  const sql = postgres(process.env.POSTGRES_URL, { max: 1 });
+if (PG_URL) {
+  const sql = postgres(PG_URL, { max: 1 });
   const rows = await sql`
     select i.email, i.role, i.status
     from invitations i
@@ -245,4 +261,4 @@ if (process.env.POSTGRES_URL) {
   console.log('DB ORACLE:', dbOk ? 'PASS' : 'FAIL');
 }
 
-process.exit(dbOk || !process.env.POSTGRES_URL ? 0 : 1);
+process.exit(dbOk || !PG_URL ? 0 : 1);

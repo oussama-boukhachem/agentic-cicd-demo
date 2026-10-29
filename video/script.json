@@ -1,0 +1,132 @@
+{
+  "output": "video/out/agentic-cicd-1080p.mp4",
+  "scenes": [
+    {
+      "kind": "title",
+      "main": "Agentic CI/CD",
+      "sub": "An LLM tests the app inside the pipeline",
+      "vo": "This is a real pipeline, and the test you are about to see is not scripted. An AI agent opens the app, fills the signup form, invites a teammate, and the database proves it happened. No selectors, no page objects, no brittle step definitions. And it runs on every push, in about three minutes, for a few cents."
+    },
+    {
+      "kind": "title",
+      "main": "The problem with scripts",
+      "sub": "One renamed button, the whole suite goes red",
+      "vo": "Traditional end to end tests are a list of instructions. Click this selector, type into that one, expect this exact label. It works beautifully until a developer renames a button. Then the suite goes red, the pull request is blocked, and someone spends an afternoon repairing selectors instead of shipping features. The test did not catch a bug in the product. The test was the bug."
+    },
+    {
+      "kind": "diagram",
+      "vo": "So here is the pipeline we are going to build. Six stages. Lint and typecheck, then the production build, then the agentic end to end test, which is the new part. After that the container image is pushed to the registry, deployed to a server over SSH, and a smoke test checks the live URL. Every stage has to pass before the next one starts, and the whole thing is defined in one workflow file you can read in a minute."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/ci.txt",
+      "vo": "On a real run it looks like this. Lint and typecheck pass in seconds, the build passes, and then the interesting one. The agentic end to end stage, where a language model drives a real browser against a disposable copy of the app, and Postgres grades the result. Green here means the account exists and the invitation row is in the database."
+    },
+    {
+      "kind": "title",
+      "main": "The loop",
+      "sub": "Snapshot. Decide. Act. Repeat.",
+      "vo": "The agent is simple by design, and that is the point. Each turn it receives a snapshot of the page: every visible button, input and link, with its label, its placeholder and its type. The model reads that list, the goal, and the history of what it already tried, and it picks exactly one action. Playwright executes that action. Then we take a new snapshot and ask again. That is the entire architecture."
+    },
+    {
+      "kind": "clip",
+      "clip": "video/raw/agent-run.mp4",
+      "start": 0,
+      "vo": "Watch it work. It reads the form, fills the email, fills the password, finds the submit button, and lands on the dashboard. Then it finds the invite card, types the teammate address and submits. Notice there are no selectors anywhere in the goal. The instruction is a sentence, not a script. That sentence is the whole test."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/snapshot.txt",
+      "vo": "This is what the model actually sees. An index, a tag, a type, a label. It does not see the DOM, the CSS or the React tree. It sees a list of things a user could touch, and it says: fill index zero with the email. That is the decision. Playwright does the rest."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/agent.txt",
+      "vo": "And this is the transcript of the run. Fill the email, fill the password, click sign up, fill the invite address, click invite member, done. Six tool calls. No page objects, no waits for the right frame, no retry wrapper around every click. When something changes on the page, the model simply sees the new list next turn and adapts."
+    },
+    {
+      "kind": "title",
+      "main": "The oracle",
+      "sub": "The agent acts. Postgres decides.",
+      "vo": "Here is the part most agent demos skip. You cannot trust a language model to grade its own homework. A model that is confident is not the same thing as a model that is correct. So after the agent finishes, the pipeline ignores its opinion and queries the database directly. If the invitation row exists, the stage is green. If it does not, the stage fails, no matter how nicely the model described its own success."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/money-scripted-fail.txt",
+      "vo": "Now the interesting part. A designer renames the button from sign up to log in. The scripted test is still looking for the old label, so it fails. This is the failure every team knows by heart. Not a bug in the product, a bug in the test. It costs an afternoon, and it teaches the team to trust their suite a little less."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/money-agent-pass.txt",
+      "vo": "Same commit. Same renamed button. The agent still passes. It reads the page the way a human would, sees a button that logs you in, and uses it. The goal did not change. Only the label did, and the label is not the product. That is the whole argument for agentic testing, in one comparison."
+    },
+    {
+      "kind": "title",
+      "main": "What breaks it",
+      "sub": "2FA, captchas, flaky networks",
+      "vo": "It is not magic, and it is not free of failure. Two factor prompts, captchas and anti bot checks will stop an agent dead. Long flows drift, because every extra step multiplies the chance of a wrong click somewhere in the middle. Vision based models are slower and more expensive than a selector, and a small local model will lose the thread around step ten. Knowing where it breaks is what makes it usable."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/workflow.txt",
+      "vo": "Everything lives in one workflow file. The agent stage checks out the code, installs Chromium, builds the image, starts the app and Postgres with compose, waits for the health endpoint, and then runs the agent. If the database assertion fails, the job fails. The trace and the final screenshot are uploaded as artifacts, so a failure is something you can look at instead of guess about."
+    },
+    {
+      "kind": "title",
+      "main": "What it costs",
+      "sub": "About three cents per run",
+      "vo": "On a model like DeepSeek, this run costs roughly three cents. That is cheap enough to run on every pull request, and cheap enough that nobody argues about it. Rehearsals run locally against a small model for free, with exactly the same code path, so you tune the goal and the prompt before you spend anything at all."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/local.txt",
+      "vo": "That is what the local rehearsal looks like. Same script, same assertions, a local model instead of the cloud one. You iterate here until the journey is reliable, and only the recorded run uses the paid model. This is also how you keep the demo honest: the pipeline and the rehearsal are the same code."
+    },
+    {
+      "kind": "title",
+      "main": "Why not just unit tests",
+      "sub": "Different questions, different jobs",
+      "vo": "A unit test answers: does this function return the right value. An agentic test answers: can a person still complete this journey. Those are different questions, and you want both. The deterministic suite stays the gate for logic. The agent covers the journey a user actually walks, the one that spans five screens, two forms and a redirect."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/deploy.txt",
+      "vo": "From there it is ordinary delivery. The image goes to the registry, the deploy job copies the compose file to the server, pulls the new tag, and restarts the stack. Then a smoke test hits the health endpoint, which also confirms the database connection. If the container is up but the database is not, the pipeline still fails."
+    },
+    {
+      "kind": "title",
+      "main": "What's next",
+      "sub": "Wire it into a real repo",
+      "vo": "If you want this in your own repository, the pieces are small. A goal sentence, a snapshot function, a tool schema with four actions, and a SQL assertion. Everything else is the pipeline you already have. Start with one journey, the one that costs you the most when it breaks, and let the agent learn it."
+    },
+    {
+      "kind": "term",
+      "log": "video/logs/goal.txt",
+      "vo": "Here is the entire test. Three sentences of English, and a run id so every execution uses a fresh email. There is no page object, no selector, no fixture, no helper. If you can explain the journey to a new colleague, you can explain it to the agent. That is the whole authoring experience."
+    },
+    {
+      "kind": "title",
+      "main": "When the agent fails",
+      "sub": "Fail loudly, with evidence",
+      "vo": "Agents fail differently from scripts, so the failure path matters. The stage does not retry forever. It stops at the step budget, saves the transcript, saves the final screenshot, and fails the job with the SQL assertion that did not hold. You get a page of evidence instead of a stack trace about a missing selector."
+    },
+    {
+      "kind": "title",
+      "main": "Traces, not guesses",
+      "sub": "Every run is an artifact",
+      "vo": "Every run uploads its transcript as a build artifact. You can read the exact decision the model made at every turn, and you can see where it went wrong without reproducing anything locally. When a test fails at three in the morning, that is usually the difference between a five minute fix and an hour of guessing."
+    },
+    {
+      "kind": "title",
+      "main": "Where it fits",
+      "sub": "One journey, not the whole suite",
+      "vo": "Do not replace your suite with an agent. Pick the one journey that costs the most when it breaks, the signup, the checkout, the invite flow, and let the agent own that path end to end. Keep the deterministic tests for logic. The agent covers the walk a real person takes, and the database decides whether they arrived."
+    },
+    {
+      "kind": "title",
+      "main": "Six stages, one agent",
+      "sub": "github.com/oussama-boukhachem/agentic-cicd-demo",
+      "vo": "The whole thing runs on every push. And when the interface changes, the agent adapts instead of breaking. That is the difference between testing the page and testing the product."
+    }
+  ]
+}

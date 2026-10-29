@@ -1,0 +1,10 @@
+$ node tests/scripted-signup.mjs
+
+  getByRole('button', { name: 'Sign up' })
+
+  x locator.click: Timeout 5000ms exceeded.
+    waiting for getByRole('button', { name: 'Sign up' })
+
+SCRIPTED TEST: FAIL - TimeoutError: locator.click: Timeout 5000ms exceeded.
+
+  reason: the button is now called "Log in"

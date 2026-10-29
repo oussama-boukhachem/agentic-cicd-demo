@@ -1,0 +1,11 @@
+$ cat scripts/goal.txt
+
+GOAL:
+  Create an account with email agent+$RUN@example.com
+  and password Sup3rSecret!9.
+  Then invite teammate+$RUN@example.com
+  with role member.
+
+  Done when the invitation is confirmed on screen.
+
+# 3 sentences. No selectors. No page objects.

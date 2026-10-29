@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+await page.goto('http://127.0.0.1:3000/sign-up', { waitUntil: 'networkidle' });
+await page.getByPlaceholder('Enter your email').fill('dbg+' + Date.now() + '@example.com');
+await page.getByPlaceholder('Enter your password').fill('Sup3rSecret!9');
+await page.getByRole('button', { name: 'Sign up', exact: true }).click();
+await page.waitForTimeout(4000);
+console.log('url:', page.url());
+console.log('body:', (await page.innerText('body')).replace(/\n+/g, ' | ').slice(0, 400));
+await browser.close();
