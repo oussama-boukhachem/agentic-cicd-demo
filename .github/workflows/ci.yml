@@ -51,9 +51,58 @@ jobs:
           BASE_URL: http://localhost:3000
           STRIPE_SECRET_KEY: sk_test_placeholder
 
+  agentic-e2e:
+    name: Agentic E2E (LLM drives the UI)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund --legacy-peer-deps
+      - run: npx playwright install --with-deps chromium
+      - name: Build image for the ephemeral stack
+        run: docker build -t agentic-cicd:ci .
+      - name: Start app + Postgres
+        run: |
+          set -euo pipefail
+          IMAGE=agentic-cicd:ci APP_PORT=4100 DB_PORT=55433 AUTH_SECRET=ci-\${{ github.run_id }} \
+            docker compose -p ci -f docker-compose.staging.yml up -d
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4100/api/health; then echo; exit 0; fi
+            sleep 2
+          done
+          docker compose -p ci -f docker-compose.staging.yml logs --tail=60
+          exit 1
+      - name: Run the agent journey
+        env:
+          APP_URL: http://127.0.0.1:4100
+          LLM_BASE_URL: https://api.deepseek.com/v1
+          LLM_MODEL: deepseek-chat
+          LLM_API_KEY: \${{ secrets.DEEPSEEK_API_KEY }}
+          POSTGRES_URL: postgres://postgres:postgres@127.0.0.1:55433/demo
+          AGENT_EMAIL: agent+\${{ github.run_id }}@example.com
+          AGENT_INVITEE: teammate+\${{ github.run_id }}@example.com
+        run: node scripts/agent-journey.mjs 2>&1 | tee agent-run.log
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-evidence
+          path: |
+            agent-run.log
+            agent-final.png
+          if-no-files-found: warn
+      - name: Tear down
+        if: always()
+        run: docker compose -p ci -f docker-compose.staging.yml down -v
+
   docker:
     name: Build & push image
-    needs: build
+    needs: [build, agentic-e2e]
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
